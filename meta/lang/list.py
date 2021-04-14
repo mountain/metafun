@@ -1,15 +1,16 @@
 from typing import TypeVar, Generic
-
-from lang.letter import Letter
-
-a = TypeVar('a')
-
-"""
-List a:
-    a
-    a, List a
-"""
+from lang.generative import generative
 
 
-class List(Generic[a]):
-    pass
+T = TypeVar('T')
+
+
+@generative
+class List(Generic[T]):
+    """
+        T
+        T, lang.list.List[T]
+    """
+    def __init__(self, *instances):
+        self.first = instances[0]
+        self.rest = None if len(instances) < 2 else instances[1]

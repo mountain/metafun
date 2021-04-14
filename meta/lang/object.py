@@ -1,9 +1,4 @@
-
-ctx = {}
-
-
-def generative(obj):
-    pass
+from lang.generative import generative
 
 
 @generative
@@ -11,6 +6,5 @@ class Object:
     """
         .
     """
-    _all_ = [ln.lstrip() for ln in self.__doc__.split('\n')]
-    def __init__(self):
-
+    def __init__(self, content):
+        self.content = content
