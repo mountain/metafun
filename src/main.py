@@ -7,5 +7,5 @@ for letter in generate(Letter):
     print(letter)
 
 
-for lst in generate(List):
-    print(lst)
+for lst in generate(List[Letter]):
+    print(list(lst.first), lst.rest)

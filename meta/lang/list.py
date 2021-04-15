@@ -11,6 +11,11 @@ class List(Generic[T]):
         T
         T, lang.list.List[T]
     """
-    def __init__(self, *instances):
-        self.first = instances[0]
-        self.rest = None if len(instances) < 2 else instances[1]
+    def __init__(self, instances):
+        match instances:
+            case first, rest:
+                self.first = first
+                self.rest = rest
+            case first:
+                self.first = first
+                self.rest = []
