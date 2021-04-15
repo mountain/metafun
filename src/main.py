@@ -8,4 +8,4 @@ for letter in generate(Letter):
 
 
 for lst in generate(List[Letter]):
-    print(list(lst.first), lst.rest)
+    print(lst)

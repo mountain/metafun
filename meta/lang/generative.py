@@ -5,6 +5,7 @@ import itertools
 dox = {}
 ctx = {}
 
+
 def qname(clazz: typing.Type):
     return '.'.join([clazz.__module__, clazz.__name__])
 
@@ -13,24 +14,30 @@ def readlines(lines: str):
     return [ln.strip() for ln in lines.split('\n') if ln.strip()]
 
 
-def gen_by_cases(clazz: typing.Type, cases: typing.List[str]) -> typing.Generator:
-    loc = {}
-    match definition.split(','):
-        case first, rest:
+def subrules(rule: str):
+    return [rl.strip() for rl in rule.split(',') if rl.strip()]
 
-        case _:
-            loc[definition] = "'%s'" % _
-            instances = eval(definition, ctx, loc)
-            yield clazz(instances)
-    instances = [ctx[qname(inst)] if type(inst) == type else inst for inst in instances]
 
+def gen_by_cases(depth, clazz: typing.Type, rules: typing.List[str]) -> typing.Generator:
+    if depth < 4:
+        for rule in rules:
+            if rule:
+                if rule in ctx:
+                    yield from ctx[rule]
+                else:
+                    subs = subrules(rule)
+                    vals = itertools.product([ctx[sub] if sub in ctx else sub for sub in subs])
+                    clzs = [eval(sub, ctx) if sub in ctx else str for sub in subs]
+                    for val, cls in zip(vals, clzs):
+                        p = cls(val[0])
+                        yield  clazz(p)
 
 
 def generative(clazz: typing.Type) -> typing.Type:
     qn = qname(clazz)
-    definitions = clazz.__doc__
-    dox[qn] = definitions
-    ctx[qn] = gen_by_cases(clazz, readlines(definitions))
+    rules = clazz.__doc__
+    dox[qn] = rules
+    ctx[qn] = list(gen_by_cases(0, clazz, readlines(rules)))
     return clazz
 
 
@@ -50,12 +57,12 @@ def generate(clazz: typing.Type) -> typing.Generator:
         case other if issubclass(other, typing._GenericAlias):
             qn = repr(clazz)
             bn = qn[:qn.index('[')]
-            definitions = dox[bn]
+            rules = dox[bn]
             for param in clazz.__args__:
                 pn = qname(param)
-                definitions = definitions.replace('T', pn)
+                rules = rules.replace('T', pn)
 
-            g = gen_by_cases(clazz, readlines(definitions))
+            g = gen_by_cases(0, clazz, readlines(rules))
             ctx[qn] = g
 
     yield from g
