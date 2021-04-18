@@ -8,7 +8,7 @@ class MFRProgram:
         [T]
         [T, List[T]]
     """
-    def __init__(self, input, mapper, filterer, reducer):
+    def __init__(self, mapper, filterer, reducer, input):
         self.first = first        # type: Optional[T]
         self.rest = List(rest)    # type: List[T] | None
 
