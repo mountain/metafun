@@ -1,8 +1,8 @@
-from lang.object import Object
-from lang.generative import generative
+from metafun.lang.object import Object
+from metafun.lang.decorator import constructible
 
 
-@generative
+@constructible
 class Letter(Object):
     """
         a
@@ -62,7 +62,7 @@ class Letter(Object):
         self.content = content
 
     def __repr__(self):
-        return "'%s'" % self.content
+        return '%s' % self.content
 
     def __str__(self):
         return self.content

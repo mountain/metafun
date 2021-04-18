@@ -33,7 +33,11 @@ def gen_by_cases(depth, clazz: typing.Type, rules: typing.List[str]) -> typing.G
                         yield  clazz(p)
 
 
-def generative(clazz: typing.Type) -> typing.Type:
+def enumerative(clazz: typing.Type) -> typing.Type:
+    return clazz
+
+
+def constructible(clazz: typing.Type) -> typing.Type:
     qn = qname(clazz)
     rules = clazz.__doc__
     dox[qn] = rules
@@ -42,11 +46,6 @@ def generative(clazz: typing.Type) -> typing.Type:
 
 
 def generate(clazz: typing.Type) -> typing.Generator:
-    import lang
-    import lang.object
-    import lang.list
-    import lang.letter
-
     ctx.update(locals())
 
     g = []
