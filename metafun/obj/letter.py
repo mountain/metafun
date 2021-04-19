@@ -1,9 +1,9 @@
-from metafun.lang.object import Object
+from metafun.lang.entity import Entity
 from metafun.lang.decorator import constructible
 
 
 @constructible
-class Letter(Object):
+class Letter(Entity):
     """
         a
         b
@@ -66,3 +66,12 @@ class Letter(Object):
 
     def __str__(self):
         return self.content
+
+    def __eq__(self, another):
+        return self.content == another.content
+
+    def __gt__(self, another):
+        return self.content > another.content
+
+    def __lt__(self, another):
+        return self.content < another.content

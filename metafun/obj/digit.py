@@ -1,10 +1,10 @@
-from metafun.lang.object import Object
+from metafun.lang.entity import Entity
 from metafun.lang.decorator import enumerative, constructible
 
 
 @enumerative
 @constructible
-class Digit(Object):
+class Digit(Entity):
     """
         0
         1
@@ -21,7 +21,16 @@ class Digit(Object):
         self.content = content
 
     def __repr__(self):
-        return '"%s"' % self.content
+        return '%s' % self.content
 
     def __str__(self):
         return self.content
+
+    def __eq__(self, another):
+        return isinstance(another, type(self)) and self.content == another.content
+
+    def __gt__(self, another):
+        return self.content > another.content
+
+    def __lt__(self, another):
+        return self.content < another.content
