@@ -36,12 +36,17 @@ def is_concrete(rule: str):
         return False
 
     rule = rule.strip()
+
     if is_tuple(rule):
         for sub in subrules(rule):
             if not is_concrete(sub):
                 return False
+        check = not is_list(rule)
+        for sub in subrules(rule):
+            check = check or (sub in ctx)
+        return check
 
-    rule = rule.strip()
+
     if is_list(rule):
         return rule == '[]' or rule[1:-1] in ctx
 
@@ -50,7 +55,7 @@ def is_concrete(rule: str):
 
     try:
         param = rule[rule.index('[') + 1:rule.rindex(']')]
-        return False
+        return is_concrete('[%s]' % param)
     except ValueError as e:
         return '[' not in rule and ']' not in rule
 

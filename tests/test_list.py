@@ -20,6 +20,7 @@ class TestList(unittest.TestCase):
         target = digits0 + digits1 + digits2 + digits3 + digits4
 
         test = list(generate(List[Digit]))
+        print(test)
         self.assertListEqual(target, test)
 
 
