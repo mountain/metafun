@@ -15,13 +15,13 @@ T = TypeVar('T')
 @constructible
 class List(Generic[T]):
     """
-        []
-        [T]
-        [T, List[T]]
+        {"first": None, "rest": None}
+        {"first": T, "rest": None}
+        {"first": T, "rest": metafun.lang.list.List[T]}
     """
-    def __init__(self, first: Optional[T] = None, rest: 'List[T]' = None):
+    def __init__(self, first: Optional[T] = None, rest: 'metafun.lang.list.List[T]' = None):
         self.first = first  # type: Optional[T]
-        self.rest = rest    # type: List[T]
+        self.rest = rest    # type: metafun.lang.list.List[T]
 
     def __repr__(self):
         if self.first is None:
@@ -32,40 +32,29 @@ class List(Generic[T]):
             return '[%s, %s]' % (repr(self.first), repr(self.rest))
 
     def __str__(self):
-        if self.first is not None:
-            first_str = str(self.first)
-            if self.rest is None:
-                elem_str = '%s ' % first_str
-            else:
-                elem_str = '%s, %s' % (first_str, str(self.rest)[1:-1])
-        return '[%s]' % elem_str
+        def accum(elem: str, accumulated: str) -> str:
+            return '%s, %s' % (elem, accumulated)
+
+        return '[%s]' % self.apply(str).reduce(accum, '')[:-2]
 
     def append(self: List[T], another: List[T]) -> List[T]:
         return List(self.first).append(self.rest.append(another))
 
     def apply(self, f: Callable[T, S]) -> List[S]:
         if self.first is None:
-            return List()
+            return List[S]()
         elif self.rest is None:
-            return List(f(self.first))
+            return List[S](first=f(self.first))
         else:
-            return List(f(self.first), self.rest.apply(f))
+            return List[S](first=f(self.first), rest=self.rest.apply(f))
 
-    def reduce(self, f: Callable[T, S]) -> S:
-        if self.rest is not None:
-            left = f(self.first)
-            right = self.rest.join_elems(f)
-            return "%s, %s" % (left, right)
-        else:
-            return f(self.first)
-
-    def elementwise(self: List[T], f: Callable[T, str]):
+    def reduce(self, f: Callable[[T, S], S], init: S) -> S:
         if self.first is None:
-            return '[]'
+            return init
         elif self.rest is None:
-            return '[%s]' % self.rest
+            return f(self.first, init)
         else:
-            return '[]'
+            return f(self.first, self.rest.reduce(f, init))
 
 
 def apply(lst: List[T], f: Callable[T, S]) -> List[S]:

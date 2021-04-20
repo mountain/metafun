@@ -1,5 +1,7 @@
 import itertools
 import typing
+import types
+import copy
 
 
 dox = {}
@@ -62,7 +64,8 @@ def is_concrete(rule: str):
 
 def list_rule(depth: int, ctx: dict, rule: str):
     subs = subrules(rule[1:-1])
-    vals = itertools.product([ctx[sub] if sub in ctx else sub for sub in subs])
+    evls = [eval_rule(depth + 1, ctx, sub) for sub in subs]
+    vals = itertools.product(evls)
     for lst in vals:
         for val in lst[0]:
             yield val
@@ -75,15 +78,30 @@ def subrules(rule: str):
 
 
 def eval_rule(depth: int, ctx: dict, rule: str):
+    import metafun
+    ctx.update(locals())
+
     if depth < 4:
         if rule in ctx:
-            return ctx[rule]
-        else:
-            import metafun
-            ctx.update(locals())
-            val = eval(rule, ctx)
-            ctx[rule] = val
-            return val
+            tgt = ctx[rule]
+            if isinstance(tgt, types.GeneratorType):
+                lst = list(tgt)
+                return lst
+            else:
+                cp = copy.copy(tgt)
+                return cp
+
+        evaluated = eval_rule(depth + 1, ctx, rule)
+        return evaluated
+    else:
+        evaluated = eval(rule, ctx)
+        if issubclass(type(evaluated), typing._GenericAlias):
+            args = evaluated.__args__
+            argvs = [ctx[qname(param)] for param in args]
+            docs = evaluated.__doc__
+            ctx[rule] = vals
+            return vals
+
 
 
 def gen_by_cases(depth, clazz: typing.Type, rules: typing.List[str]) -> typing.Generator:
@@ -108,7 +126,9 @@ def generate(clazz: typing.Type) -> typing.Generator:
         case other if issubclass(other, typing._GenericAlias):
             qn = repr(clazz)
             bn = qn[:qn.index('[')]
+            nm = bn.split('.')[-1]
             rules = dox[bn]
+            rules.replace(nm, bn)
             for param in clazz.__args__:
                 pn = qname(param)
                 rules = rules.replace('T', pn)
