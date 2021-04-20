@@ -97,8 +97,10 @@ def eval_rule(depth: int, ctx: dict, rule: str):
         evaluated = eval(rule, ctx)
         if issubclass(type(evaluated), typing._GenericAlias):
             args = evaluated.__args__
-            argvs = [ctx[qname(param)] for param in args]
-            docs = evaluated.__doc__
+            ctxparam = {
+                qname(param): ctx[qname(param)] for param in args
+            }
+            d = typing.(evaluated)
             ctx[rule] = vals
             return vals
 

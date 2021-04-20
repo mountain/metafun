@@ -6,6 +6,7 @@ from metafun.lang.decorator import enumerative, constructible
 @constructible
 class Digit(Entity):
     """
+    Digit: {content: }
         0
         1
         2
